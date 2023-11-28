@@ -1,14 +1,19 @@
 package com.example.partidafutebol.service;
 
+import ch.qos.logback.core.net.SyslogOutputStream;
 import com.example.partidafutebol.dto.PartidaDto;
 import com.example.partidafutebol.model.Partida;
 import com.example.partidafutebol.repository.PartidaRepository;
 import jakarta.servlet.http.Part;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cglib.core.Local;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
@@ -22,9 +27,36 @@ public class PartidaService {
         Partida partida = new Partida();
         BeanUtils.copyProperties(partidaDto, partida);
 
-        partidaRepository.save(partida);
+        LocalTime horaInicio = partida.getHoraEvento();
+        if(horaInicio.getHour() > 8 || horaInicio.getHour() < 22){
+            //Evento datas
+            LocalDate diaDoEvento = partida.getDataEvento();
+            String diaDoEventoPlusDois = diaDoEvento.plusDays(2).toString();
+            String diaDoEventoMinusDois = diaDoEvento.minusDays(2).toString();
+
+
+            List<Partida> retornoValid = partidaRepository.findByClubeMandanteOrClubeVisitanteBetweenDates(
+                    diaDoEventoMinusDois, diaDoEventoPlusDois, partida.getClubeMandante(), partida.getClubeVisitante());
+
+            if(retornoValid.size() > 0){
+                throw new Error("ERRO DA VALID DE CLUBES");
+            }
+                List<Partida> retornoValidEstadioAndDiaEvento = partidaRepository.findByEstadioAndDataEventoQuery(partidaDto.getEstadio(), diaDoEvento.toString());
+
+            if(retornoValidEstadioAndDiaEvento.size() > 1){
+                throw new Error("ERRO DA VALID DE ESTADIO");
+            }
+
+
+            System.out.println("retornoValidEstadioAndDiaEvento: " );
+            partidaRepository.save(partida);
+
+        }
+
         return partida;
     }
+
+
 
 
     public Partida alterar(PartidaDto partidaDto, Integer id){

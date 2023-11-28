@@ -8,8 +8,11 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
 
 @RestController
@@ -65,7 +68,7 @@ public class PartidaController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Partida> alterar(@RequestBody PartidaDto partidaDto, @PathVariable Integer id ){
+    public ResponseEntity<Partida> alterar(@RequestBody @Valid PartidaDto partidaDto, @PathVariable Integer id ){
         Partida partidaAlterada = partidaService.alterar(partidaDto, id);
         return ResponseEntity.ok(partidaAlterada);
     }
@@ -75,6 +78,27 @@ public class PartidaController {
         partidaService.deletar(id);
         return  ResponseEntity.noContent().build();
     }
+
+    //RETORNAR MSG DE ERRO DAS VALIDACOES
+/*    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public Map<String, String> handleValidationException(MethodArgumentNotValidException ex){
+        Map<String, String> errors = new HashMap<>();
+
+        ex.getBindingResult().getAllErrors().forEach((error) ->{
+            String fieldName = ((FieldError) error).getField();
+            String erroMsg = error.getDefaultMessage();
+            errors.put(fieldName, erroMsg);
+        });
+        return errors;
+    }*/
+
+
+
+
+
+
+
 
 
 

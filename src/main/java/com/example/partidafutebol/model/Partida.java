@@ -18,18 +18,17 @@ public class Partida {
     @Column
     private int id;
 
-    @NotEmpty(message = "Clube em branco, Insira o nome do clube mandante")
+    @NotBlank(message = "Campo não informado")
     @Column
     private String clubeMandante;
 
-    @NotEmpty(message = "Clube em branco, Insira o nome do clube visitante")
+    @NotBlank(message = "Campo não informado")
     @Column
     private String clubeVisitante ;
 
-    @NotEmpty(message = "Estadio em branco, Insira o nome do estadio")
+    @NotBlank(message = "Campo não informado")
     @Column
     private String estadio;
-
 
 
     @Column
@@ -40,12 +39,12 @@ public class Partida {
     @Min(0)
     private int golVisitante;
 
-    @NotNull
+    //@NotBlank (message = "Campo não informado")
     @Column
     @PastOrPresent
     private LocalDate dataEvento;
 
-    @NotNull
+    //@NotBlank (message = "Campo não informado")
     @Column
     @PastOrPresent
     private LocalTime horaEvento;
